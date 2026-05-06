@@ -32,7 +32,7 @@
             font-weight: 500;
             margin-bottom: 0.5rem;
         }
-        input, textarea, select {
+        input, textarea {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ddd;
@@ -64,7 +64,8 @@
             border-radius: 8px;
             border: 1px solid #eee;
             white-space: pre-wrap;
-            line-height: 1.6;
+            line-height: 1.8;
+            font-size: 0.95rem;
         }
     </style>
 </head>
@@ -129,35 +130,36 @@
                         "model": "qwen-turbo",
                         "input": {
                             "messages": [
-                                 {
-                                     "role": "system",
-                                     "content": "你是资深HR，专门为校招学生打造可直接投递的简历内容。必须严格遵守以下规则：1. 只输出可直接放入简历的内容，不要任何解释、开场白和结束语；2. 模块只保留「项目经历」和「专业技能」，**禁止出现「实习经历」模块**；3. 禁止出现「无相关经历」「无实习」这类负面表述，所有内容用正向语言呈现；4. 项目经历每条以动词开头，使用STAR法则，突出量化成果，适配目标岗位；5. 内容精简干练，适配一页纸简历，不写废话；6. 专业技能部分只写与目标岗位相关的硬技能和软技能，用短句列出。"
-                                 },
-                                 {
-                                     "role": "user",
-                                     "content": `个人经历/项目/技能：${experience}\n目标岗位：${targetJob}\n额外修改要求：${requirements}`
-                                 }
-                             ]
-                         },
-                         "parameters": {
-                             "result_format": "text"
-                         }
-                     })
-                 });
-                 const data = await response.json();
-                 if (data?.output?.text) {
-                     resultBox.textContent = data.output.text;
-                 } else {
-                     resultBox.textContent = '生成失败，请检查 API Key 是否正确，或稍后重试。';
-                 }
-             } catch (err) {
-                 console.error(err);
-                 resultBox.textContent = '请求出错：' + err.message;
-             } finally {
-                 generateBtn.disabled = false;
-                 generateBtn.textContent = '一键生成/优化';
-             }
-         });
-     </script>
- </body>
- </html>
+                                {
+                                    "role": "system",
+                                    "content": "你是资深校招HR，专门为学生生成可直接投递的「成品简历内容」，输出必须严格遵守以下规则：1. 只输出可直接复制到简历的内容，不要任何解释、开场白和结束语；2. 必须使用标准简历格式：【项目经历】+【专业技能】两个模块，每个模块用加粗标题开头；3. 项目经历每条必须用「动词开头+任务/行动+量化结果」的STAR结构，适配目标岗位，突出与岗位相关的能力；4. 禁止出现「无相关经历」「无实习」这类负面表述；5. 专业技能只写与目标岗位相关的硬技能和软技能，用短句列出，不写无关内容；6. 语言必须正式、干练，符合校招简历风格，不写废话；7. 输出的内容必须结构清晰、排版工整，复制到Word里就能直接用。"
+                                },
+                                {
+                                    "role": "user",
+                                    "content": `个人经历/项目/技能：${experience}\n目标岗位：${targetJob}\n额外修改要求：${requirements}`
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "result_format": "text"
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                if (data?.output?.text) {
+                    resultBox.textContent = data.output.text;
+                } else {
+                    resultBox.textContent = '生成失败，请检查 API Key 是否正确，或稍后重试。';
+                }
+            } catch (err) {
+                console.error(err);
+                resultBox.textContent = '请求出错：' + err.message;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '一键生成/优化';
+            }
+        });
+    </script>
+</body>
+</html>
