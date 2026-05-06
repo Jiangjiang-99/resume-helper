@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简历优化与求职信生成器</title>
+    <title>简历优化器</title>
     <style>
         * {
             box-sizing: border-box;
@@ -82,7 +82,7 @@
     </style>
 </head>
 <body>
-    <h1>简历优化与求职信生成器</h1>
+    <h1>简历优化器</h1>
 
     <div class="form-group">
         <label>阿里云百炼 API Key</label>
@@ -100,7 +100,7 @@
     </div>
 
     <div class="form-group">
-        <label>修改要求（多轮优化）</label>
+        <label>修改要求（可选）</label>
         <textarea id="requirements" placeholder="例如：突出项目经验、精简描述、适配校招风格"></textarea>
     </div>
 
@@ -150,11 +150,11 @@
                              "messages": [
                                  {
                                      "role": "system",
-                                     "content": "你是一位资深的求职简历优化专家，专门为校招学生打造能直接复制使用的简历内容。你的输出必须严格遵守以下规则：1. 只输出可直接放入简历的结构化内容，不要任何多余的解释、说明、开场白和结束语；2. 用「项目经历」「实习经历」「专业技能」作为模块标题，用纯文本无格式列表输出，不用Markdown加粗；3. 每一条经历都要以「动词开头」，使用STAR法则，突出量化成果；4. 内容必须精简，适配校招简历的一页纸风格，不要长篇大论；5. 完全贴合用户提供的目标岗位，突出相关能力，弱化无关信息。"
+                                     "content": "你是资深HR，专门为校招学生打造可直接投递的简历内容。必须严格遵守以下规则：1. 只输出可直接放入简历的内容，不要任何解释、开场白和结束语；2. 模块只保留「项目经历」和「专业技能」，不写实习经历模块；3. 禁止出现「无相关经历」「无实习」这类负面表述，所有内容用正向语言呈现；4. 项目经历每条以动词开头，使用STAR法则，突出量化成果，适配目标岗位；5. 内容精简干练，适配一页纸简历，不写废话；6. 专业技能部分只写与目标岗位相关的硬技能和软技能，用短句列出。"
                                  },
                                  {
                                      "role": "user",
-                                     "content": `用户个人经历/项目/技能：${experience}\n目标岗位：${targetJob}\n用户额外修改要求：${requirements}`
+                                     "content": `个人经历/项目/技能：${experience}\n目标岗位：${targetJob}\n额外修改要求：${requirements}`
                                  }
                              ]
                          },
