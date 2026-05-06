@@ -1,165 +1,115 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简历优化器</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        body {
-            background-color: #f7f8fa;
-            color: #333;
-            padding: 2rem 1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            font-size: 1.75rem;
-            margin-bottom: 2rem;
-            color: #222;
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        button {
-            width: 100%;
-            padding: 0.85rem;
-            border: none;
-            border-radius: 8px;
-            background-color: #2563eb;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-        button:hover {
-            background-color: #1d4ed8;
-        }
-        .result-box {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #eee;
-            white-space: pre-wrap;
-            line-height: 1.8;
-            font-size: 0.95rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简历优化与求职信生成器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{background:#f7f8fa;color:#333;padding:2rem 1rem;max-width:600px;margin:0 auto}
+h1{text-align:center;font-size:1.5rem;margin-bottom:1rem}
+.desc{background:#e6f7ff;padding:12px;border-radius:8px;margin-bottom:1.5rem;font-size:14px;line-height:1.5}
+.form-group{margin-bottom:1rem}
+label{display:block;font-weight:500;margin-bottom:6px}
+input,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+textarea{min-height:100px;resize:vertical}
+button{width:100%;padding:12px;border:none;border-radius:8px;background:#2563eb;color:white;font-size:15px;cursor:pointer;margin-top:8px}
+.btn-clear{background:#64748b}
+.result-box{margin-top:1.5rem;padding:1rem;background:white;border-radius:8px;white-space:pre-wrap;line-height:1.6}
+</style>
 </head>
 <body>
-    <h1>简历优化器</h1>
+<h1>简历优化与求职信生成器</h1>
+<div class="desc">
+使用说明：<br>
+1. 输入阿里云百炼API Key<br>
+2. 填写个人经历、目标岗位<br>
+3. 输入生成或修改指令，支持多轮迭代优化
+</div>
 
-    <div class="form-group">
-        <label>阿里云百炼 API Key</label>
-        <input type="password" id="apiKey" placeholder="请输入 sk- 开头的密钥">
-    </div>
+<div class="form-group">
+<label>阿里云百炼 API Key</label>
+<input type="password" id="apiKey" placeholder="sk-开头密钥">
+</div>
 
-    <div class="form-group">
-        <label>个人经历/项目/技能</label>
-        <textarea id="experience" placeholder="请描述你的经历、项目、能力"></textarea>
-    </div>
+<div class="form-group">
+<label>个人经历/项目/技能</label>
+<textarea id="exp" placeholder="请输入你的经历、项目、技能"></textarea>
+</div>
 
-    <div class="form-group">
-        <label>目标岗位</label>
-        <input type="text" id="targetJob" placeholder="例如：产品经理、运营、前端开发">
-    </div>
+<div class="form-group">
+<label>目标岗位</label>
+<input type="text" id="job" placeholder="如：产品运营、前端开发">
+</div>
 
-    <div class="form-group">
-        <label>修改要求（可选）</label>
-        <textarea id="requirements" placeholder="例如：突出项目经验、精简描述、适配校招风格"></textarea>
-    </div>
+<div class="form-group">
+<label>生成/修改指令（支持多轮修改）</label>
+<textarea id="cmd" placeholder="第一次：生成标准简历；后续：再精简、更正式、改短等"></textarea>
+</div>
 
-    <button id="generateBtn">一键生成/优化</button>
+<button id="generate">生成/迭代修改</button>
+<button id="clear" class="btn-clear">重新开始（清空对话）</button>
+<div class="result-box" id="result"></div>
 
-    <div class="result-box" id="resultBox"></div>
+<script>
+const apiKey = document.getElementById('apiKey')
+const exp = document.getElementById('exp')
+const job = document.getElementById('job')
+const cmd = document.getElementById('cmd')
+const generate = document.getElementById('generate')
+const clearBtn = document.getElementById('clear')
+const result = document.getElementById('result')
 
-    <script>
-        const apiKeyInput = document.getElementById('apiKey');
-        const experienceInput = document.getElementById('experience');
-        const targetJobInput = document.getElementById('targetJob');
-        const requirementsInput = document.getElementById('requirements');
-        const generateBtn = document.getElementById('generateBtn');
-        const resultBox = document.getElementById('resultBox');
+let messages = []
+const sysPrompt = `你是资深校招HR简历专家，严格遵守：
+1. 只输出可直接复制的简历成品，无多余解释
+2. 仅保留【项目经历】【专业技能】模块
+3. 禁止出现“无相关经历”等负面文字
+4. 语言正式专业，适配校招一页纸简历
+5. 支持按用户指令迭代修改`
 
-        generateBtn.addEventListener('click', async () => {
-            const apiKey = apiKeyInput.value.trim();
-            const experience = experienceInput.value.trim();
-            const targetJob = targetJobInput.value.trim();
-            const requirements = requirementsInput.value.trim();
+generate.addEventListener('click',async()=>{
+  const key = apiKey.value.trim()
+  const c = cmd.value.trim()
+  if(!key||!c){alert('请填写API Key和指令');return}
+  generate.disabled=true
+  generate.textContent='处理中...'
+  if(messages.length===0){
+    messages.push({role:'system',content:sysPrompt})
+    messages.push({role:'user',content:`经历：${exp.value}\n岗位：${job.value}\n要求：${c}`})
+  }else{
+    messages.push({role:'user',content:`修改要求：${c}`})
+  }
+  try{
+    const res = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Authorization':`Bearer ${key}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        model:'qwen3.6-plus',
+        messages:messages
+      })
+    })
+    const data = await res.json()
+    const reply = data.choices?.[0]?.message?.content||'生成失败'
+    result.textContent = reply
+    messages.push({role:'assistant',content:reply})
+  }catch(e){
+    result.textContent='请求错误：'+e.message
+  }finally{
+    generate.disabled=false
+    generate.textContent='生成/迭代修改'
+  }
+})
 
-            if (!apiKey || !experience || !targetJob) {
-                alert('请填写 API Key、个人经历和目标岗位');
-                return;
-            }
-
-            generateBtn.disabled = true;
-            generateBtn.textContent = '生成中...';
-            resultBox.textContent = '';
-
-            try {
-                const response = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        "model": "qwen-turbo",
-                        "input": {
-                            "messages": [
-                                {
-                                    "role": "system",
-                                    "content": "你是资深校招HR，专门为学生生成可直接投递的「成品简历内容」，输出必须严格遵守以下规则：1. 只输出可直接复制到简历的内容，不要任何解释、开场白和结束语；2. 必须使用标准简历格式：【项目经历】+【专业技能】两个模块，每个模块用加粗标题开头；3. 项目经历每条必须用「动词开头+任务/行动+量化结果」的STAR结构，适配目标岗位，突出与岗位相关的能力；4. 禁止出现「无相关经历」「无实习」这类负面表述；5. 专业技能只写与目标岗位相关的硬技能和软技能，用短句列出，不写无关内容；6. 语言必须正式、干练，符合校招简历风格，不写废话；7. 输出的内容必须结构清晰、排版工整，复制到Word里就能直接用。"
-                                },
-                                {
-                                    "role": "user",
-                                    "content": `个人经历/项目/技能：${experience}\n目标岗位：${targetJob}\n额外修改要求：${requirements}`
-                                }
-                            ]
-                        },
-                        "parameters": {
-                            "result_format": "text"
-                        }
-                    })
-                });
-
-                const data = await response.json();
-                if (data?.output?.text) {
-                    resultBox.textContent = data.output.text;
-                } else {
-                    resultBox.textContent = '生成失败，请检查 API Key 是否正确，或稍后重试。';
-                }
-            } catch (err) {
-                console.error(err);
-                resultBox.textContent = '请求出错：' + err.message;
-            } finally {
-                generateBtn.disabled = false;
-                generateBtn.textContent = '一键生成/优化';
-            }
-        });
-    </script>
+clearBtn.addEventListener('click',()=>{
+  messages=[]
+  result.textContent=''
+  cmd.value=''
+  alert('已清空，可以重新开始')
+})
+</script>
 </body>
 </html>
