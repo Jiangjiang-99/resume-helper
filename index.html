@@ -12,32 +12,40 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 body {
-    background: #f9fafb;
+    background: #f7f8fa;
     padding: 20px;
     max-width: 700px;
     margin: 0 auto;
-    color: #333;
 }
-.card {
+.box {
     background: #fff;
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     margin-bottom: 20px;
 }
-h1 {
+.title {
     font-size: 22px;
-    margin-bottom: 8px;
     text-align: center;
-    color: #111;
+    margin-bottom: 8px;
+    color: #222;
 }
-.desc {
+.subtitle {
     text-align: center;
     color: #666;
     font-size: 14px;
     margin-bottom: 20px;
 }
-.label {
+.tip {
+    background: #edf4ff;
+    color: #165dff;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+label {
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 6px;
@@ -46,14 +54,14 @@ h1 {
 input, textarea {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e5e6eb;
     border-radius: 8px;
     font-size: 15px;
     margin-bottom: 16px;
     outline: none;
 }
 input:focus, textarea:focus {
-    border-color: #165DFF;
+    border-color: #165dff;
 }
 textarea {
     min-height: 100px;
@@ -69,36 +77,26 @@ textarea {
     cursor: pointer;
     margin-bottom: 10px;
 }
-.btn-primary {
-    background: #165DFF;
-    color: white;
+.btn-blue {
+    background: #165dff;
+    color: #fff;
 }
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-.btn-second {
+.btn-gray {
     background: #f2f3f5;
     color: #333;
 }
-.tip {
-    background: #f0f7ff;
-    color: #165DFF;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 20px;
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 .loading {
-    color: #165DFF;
-    font-size: 14px;
     text-align: center;
+    color: #165dff;
     padding: 10px 0;
     display: none;
 }
 .error {
-    color: #F53F3F;
-    font-size: 14px;
+    color: #f53f3f;
     padding: 10px 0;
     display: none;
 }
@@ -109,50 +107,49 @@ textarea {
     min-height: 120px;
     white-space: pre-wrap;
     line-height: 1.6;
-    font-size: 15px;
-    border: 1px solid #eee;
+    border: 1px solid #e5e6eb;
 }
 </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>简历优化与求职信生成器</h1>
-    <p class="desc">一键生成专业简历亮点与求职信，支持反复修改</p>
+<div class="box">
+    <div class="title">简历优化与求职信生成器</div>
+    <div class="subtitle">纯前端 · 多轮修改 · 安全不泄露密钥</div>
 
     <div class="tip">
         1. 输入阿里云百炼 API Key<br>
-        2. 填写经历、岗位、修改要求<br>
-        3. 点击生成，多次优化更完美
+        2. 填写个人经历、目标岗位<br>
+        3. 填写修改要求，一键生成/优化
     </div>
 
-    <label class="label">阿里云百炼 API Key（sk-开头）</label>
-    <input type="password" id="apiKey" placeholder="请输入你的API Key，不会上传">
+    <label>阿里云百炼 API Key</label>
+    <input type="password" id="apiKey" placeholder="请输入 sk- 开头的密钥">
 
-    <label class="label">个人经历/项目/技能</label>
-    <textarea id="exp" placeholder="例如：3年产品运营，负责活动策划、用户增长…"></textarea>
+    <label>个人经历/项目/技能</label>
+    <textarea id="exp" placeholder="请描述你的经历、项目、能力"></textarea>
 
-    <label class="label">目标岗位</label>
-    <textarea id="job" placeholder="例如：互联网产品经理、电商运营、行政专员"></textarea>
+    <label>目标岗位</label>
+    <textarea id="job" placeholder="例如：产品经理、运营、前端开发"></textarea>
 
-    <label class="label">修改要求（多轮优化）</label>
-    <textarea id="prompt" placeholder="例如：更简洁、突出数据、写成正式求职信、控制200字"></textarea>
+    <label>修改要求（多轮优化）</label>
+    <textarea id="prompt" placeholder="例如：更简洁、写成求职信、突出数据、控制200字"></textarea>
 
-    <button class="btn btn-primary" id="generate">生成/继续优化</button>
-    <button class="btn btn-second" id="clear">清空内容</button>
+    <button class="btn btn-blue" id="generate">生成 / 继续优化</button>
+    <button class="btn btn-gray" id="clear">清空内容</button>
 
-    <div class="loading" id="loading">正在生成中，请稍候…</div>
+    <div class="loading" id="loading">正在生成中，请稍候...</div>
     <div class="error" id="error"></div>
 </div>
 
-<div class="card">
-    <label class="label">生成结果</label>
+<div class="box">
+    <label>生成结果</label>
     <div class="result" id="result"></div>
 </div>
 
 <script>
 const MODEL = "qwen3.6-plus";
-const URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+const API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 let history = [];
 
 const $ = id => document.getElementById(id);
@@ -164,23 +161,24 @@ const result = $("result");
 const loading = $("loading");
 const error = $("error");
 
-$("generate").onclick = async () => {
+$("generate").addEventListener("click", async () => {
     const key = apiKey.value.trim();
     const e = exp.value.trim();
     const j = job.value.trim();
     const p = prompt.value.trim();
 
-    if (!key) return showErr("请填写API Key");
+    if (!key) return showErr("请输入 API Key");
     if (!e) return showErr("请填写个人经历");
     if (!j) return showErr("请填写目标岗位");
 
-    const msg = `个人经历：${e}\n目标岗位：${j}\n要求：${p||"优化简历，突出优势"}`;
+    const msg = `个人经历：${e}\n目标岗位：${j}\n修改要求：${p || "优化简历，突出求职优势"}`;
+    
     loading.style.display = "block";
     error.style.display = "none";
     $("generate").disabled = true;
 
     try {
-        const res = await fetch(URL, {
+        const res = await fetch(API_URL, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${key}`,
@@ -189,15 +187,16 @@ $("generate").onclick = async () => {
             body: JSON.stringify({
                 model: MODEL,
                 messages: [
-                    { role: "system", content: "你是专业求职顾问，擅长简历优化、求职信撰写，语言专业简洁，支持按要求反复修改。" },
+                    { role: "system", content: "你是专业求职顾问，负责简历优化、求职信撰写，语言专业简洁，支持多轮修改。" },
                     ...history,
                     { role: "user", content: msg }
                 ],
                 temperature: 0.7
-             })
-         });
-         const data = await res.json();
-         if (!res.ok) throw new Error(data.error?.message || "请求失败");
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error?.message || "请求失败");
          const reply = data.choices[0].message.content;
          history.push({ role: "user", content: msg });
          history.push({ role: "assistant", content: reply });
