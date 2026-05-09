@@ -5,232 +5,126 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>简历优化与求职信生成器</title>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-body {
-    background: #f9fafb;
-    padding: 20px;
-    max-width: 700px;
-    margin: 0 auto;
-    color: #333;
-}
-.card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
-}
-h1 {
-    font-size: 22px;
-    margin-bottom: 8px;
-    text-align: center;
-    color: #111;
-}
-.desc {
-    text-align: center;
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-.label {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    display: block;
-}
-input, textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-    margin-bottom: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-input:focus, textarea:focus {
-    border-color: #165DFF;
-}
-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-.btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: none;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: opacity 0.2s;
-}
-.btn-primary {
-    background: #165DFF;
-    color: white;
-}
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-.btn-second {
-    background: #f2f3f5;
-    color: #333;
-}
-.loading {
-    color: #165DFF;
-    font-size: 14px;
-    text-align: center;
-    padding: 10px 0;
-    display: none;
-}
-.error {
-    color: #F53F3F;
-    font-size: 14px;
-    padding: 10px 0;
-    display: none;
-}
-.result {
-    background: #f9fafb;
-    padding: 16px;
-    border-radius: 8px;
-    min-height: 120px;
-    font-size: 15px;
-    border: 1px solid #eee;
-    white-space: pre-wrap; /* 核心：保留换行和空格 */
-    line-height: 1.6;
-    transition: opacity 0.3s;
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{background:#f7f8fa;color:#333;padding:2rem 1rem;max-width:600px;margin:0 auto}
+h1{text-align:center;font-size:1.5rem;margin-bottom:1rem}
+.desc{background:#e6f7ff;padding:12px;border-radius:8px;margin-bottom:1.5rem;font-size:14px;line-height:1.5}
+.form-group{margin-bottom:1rem}
+label{display:block;font-weight:500;margin-bottom:6px}
+input,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+textarea{min-height:100px;resize:vertical}
+button{width:100%;padding:12px;border:none;border-radius:8px;background:#2563eb;color:white;font-size:15px;cursor:pointer;margin-top:8px}
+.btn-clear{background:#64748b}
+.result-box{margin-top:1.5rem;padding:1rem;background:white;border-radius:8px;white-space:pre-wrap;line-height:1.6}
 </style>
 </head>
 <body>
-
-<div class="card">
-    <h1>简历优化与求职信生成器</h1>
-    <p class="desc">调用 qwen3.6-plus 模型，支持多轮交互优化</p>
-
-    <label class="label">阿里云百炼 API Key</label>
-    <input type="password" id="apiKey" placeholder="请输入 sk- 开头的 Key">
-
-    <label class="label">个人经历</label>
-    <textarea id="exp" placeholder="输入您的项目经历或技能点..."></textarea>
-
-    <label class="label">目标岗位</label>
-    <input type="text" id="job" placeholder="例如：前端开发工程师">
-
-    <label class="label">修改建议（多轮对话关键）</label>
-    <textarea id="prompt" placeholder="例如：让描述更有竞争力、增加量化数据、转为求职信格式"></textarea>
-
-    <button class="btn btn-primary" id="generate">生成 / 继续优化</button>
-    <button class="btn btn-second" id="clear">重新开始</button>
-
-    <div class="loading" id="loading">思考中，请稍候...</div>
-    <div class="error" id="error"></div>
+<h1>简历优化与求职信生成器</h1>
+<div class="desc">
+使用说明：<br>
+1. 输入阿里云百炼API Key<br>
+2. 填写个人经历、目标岗位<br>
+3. 指令可写：生成简历 / 生成求职信 / 继续修改内容
 </div>
 
-<div class="card">
-    <label class="label">输出结果</label>
-    <div class="result" id="result">内容将在此处显示。</div>
+<div class="form-group">
+<label>阿里云百炼 API Key</label>
+<input type="password" id="apiKey" placeholder="sk-开头密钥">
 </div>
+
+<div class="form-group">
+<label>个人经历/项目/技能</label>
+<textarea id="exp" placeholder="请输入你的经历、项目、技能"></textarea>
+</div>
+
+<div class="form-group">
+<label>目标岗位</label>
+<input type="text" id="job" placeholder="如：产品运营、前端开发">
+</div>
+
+<div class="form-group">
+<label>生成/修改指令（支持多轮修改）</label>
+<textarea id="cmd" placeholder="例：生成简历 | 生成求职信 | 再精简一点 | 更正式"></textarea>
+</div>
+
+<button id="generate">生成/迭代修改</button>
+<button id="clear" class="btn-clear">重新开始（全部清空）</button>
+<div class="result-box" id="result"></div>
 
 <script>
-const MODEL = "qwen3.6-plus";
-const URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
-let history = [];
+const apiKey = document.getElementById('apiKey')
+const exp = document.getElementById('exp')
+const job = document.getElementById('job')
+const cmd = document.getElementById('cmd')
+const generate = document.getElementById('generate')
+const clearBtn = document.getElementById('clear')
+const result = document.getElementById('result')
 
-const $ = id => document.getElementById(id);
-const apiKey = $("apiKey");
-const exp = $("exp");
-const job = $("job");
-const prompt = $("prompt");
-const result = $("result");
-const loading = $("loading");
-const error = $("error");
+let messages = []
 
-$("generate").onclick = async () => {
-    const key = apiKey.value.trim();
-    const e = exp.value.trim();
-    const j = job.value.trim();
-    const p = prompt.value.trim();
+const sysPrompt = `你是专业求职顾问，根据用户需求生成以下内容：
+1. 用户要“简历”：输出标准校招简历，只写项目经历、专业技能，禁止负面文字，可直接复制使用。
+2. 用户要“求职信”：生成正式、简洁、匹配岗位的求职信，语气真诚专业。
+3. 支持用户后续修改指令，必须基于上一轮内容迭代优化，不能重写。
+4. 只输出成品内容，不要解释、不要开场白、不要多余文字。`
 
-    if (!key) return showErr("请输入 API Key");
+generate.addEventListener('click',async()=>{
+  const key = apiKey.value.trim()
+  const c = cmd.value.trim()
+  if(!key||!c){
+    alert('请填写API Key和指令');
+    return;
+  }
+  
+  generate.disabled=true
+  generate.textContent='处理中...'
+  result.textContent = '请求中...'
 
-    let currentMsg = "";
-    // 逻辑优化：首次请求需包含背景，后续请求仅发送修改意见
-    if (history.length === 0) {
-        if (!e || !j) return showErr("首次生成请填写经历和岗位");
-        currentMsg = `我的经历：${e}\n目标岗位：${j}\n修改要求：${p || "请优化这段经历，使其更具吸引力。"}`;
-    } else {
-        if (!p) return showErr("请输入具体的修改建议（例如：更简洁一点）");
-        currentMsg = p;
+  if(messages.length===0){
+    messages.push({role:'system',content:sysPrompt})
+    messages.push({role:'user',content:`个人经历：${exp.value}\n目标岗位：${job.value}\n需求：${c}`})
+  }else{
+    messages.push({role:'user',content:`修改要求：${c}`})
+  }
+
+  try{
+    const res = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Authorization':`Bearer ${key}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        model:'qwen3.6-plus',
+        messages:messages
+      })
+    })
+    const data = await res.json()
+    // 状态码非200时，把错误信息也显示出来
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${JSON.stringify(data, null, 2)}`);
     }
+    const reply = data.choices?.[0]?.message?.content||'生成失败：未获取到内容'
+    result.textContent = reply
+    messages.push({role:'assistant',content:reply})
+  }catch(e){
+    // 关键修改：把完整错误信息显示出来，方便排查
+    result.textContent = `生成失败：${e.message}`
+  }finally{
+    generate.disabled=false
+    generate.textContent='生成/迭代修改'
+  }
+})
 
-    loading.style.display = "block";
-    error.style.display = "none";
-    $("generate").disabled = true;
-    result.style.opacity = "0.5";
-
-    try {
-        const res = await fetch(URL, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${key}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: MODEL,
-                messages: [
-                    { role: "system", content: "你是一位精通简历打磨的HR。请根据用户的经历和要求提供优化建议或撰写求职信。请直接输出内容，保持专业、干练。" },
-                    ...history,
-                    { role: "user", content: currentMsg }
-                ],
-                temperature: 0.7
-            })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || "请求失败");
-
-        const reply = data.choices[0].message.content;
-
-        // 更新对话历史实现多轮交互
-        history.push({ role: "user", content: currentMsg });
-        history.push({ role: "assistant", content: reply });
-
-        // 纯原生展示逻辑
-        result.innerText = reply;
-        prompt.value = ""; // 清空建议框，引导用户输入下一轮建议
-        
-    } catch (err) {
-        showErr(err.message);
-    } finally {
-        loading.style.display = "none";
-        $("generate").disabled = false;
-        result.style.opacity = "1";
-    }
-};
-
-$("clear").onclick = () => {
-    history = [];
-    exp.value = "";
-    job.value = "";
-    prompt.value = "";
-    result.innerText = "内容将在此处显示。";
-    error.style.display = "none";
-};
-
-function showErr(msg) {
-    error.innerText = "提示：" + msg;
-    error.style.display = "block";
-    loading.style.display = "none";
-    $("generate").disabled = false;
-}
+clearBtn.addEventListener('click',()=>{
+  messages=[]
+  result.textContent=''
+  apiKey.value=''
+  exp.value=''
+  job.value=''
+  cmd.value=''
+  alert('已完全清空，可以重新开始')
+})
 </script>
 </body>
 </html>
